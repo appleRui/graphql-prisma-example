@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports: 
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root100
+      MYSQL_DATABASE: graphql_practice
+      MYSQL_USER: user100
+      MYSQL_PASSWORD: user100password
+    hostname: mysql
+    restart: always
+    user: root
