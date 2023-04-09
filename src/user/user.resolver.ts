@@ -2,18 +2,24 @@ import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
 import { User as UserModel } from 'src/user/models/user.model';
 import { CreateUserRequest } from 'src/user/dto/createUser.request';
-import { UserService } from 'src/user/user.service';
+import { CreateUserUseCase } from 'src/user/useCase/createUser.useCase';
+import { FindUserByIdUseCase } from 'src/user/useCase/findUserById.useCase';
+import { FindUserByEmailUseCase } from 'src/user/useCase/findUserByEmail.useCase';
 
 @Resolver()
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly createUserUseCase: CreateUserUseCase,
+    private readonly findUserByIdUseCase: FindUserByIdUseCase,
+    private readonly findUserByEmailUseCase: FindUserByEmailUseCase,
+  ) {}
 
   @Mutation(() => UserModel)
   async createUser(
     @Args('createUserRequest') createUserRequest: CreateUserRequest,
   ): Promise<User> {
-    console.log('createUserRequest', createUserRequest);
-    return await this.userService.create(createUserRequest);
+    const { name, email, password } = createUserRequest;
+    return await this.createUserUseCase.execute(name, email, password);
   }
 
   // IDからユーザーを取得する
@@ -21,8 +27,7 @@ export class UserResolver {
   async findUserById(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<User> {
-    console.log('id', id);
-    return await this.userService.findUserById(id);
+    return await this.findUserByIdUseCase.execute(id);
   }
 
   // EMAILからユーザーを取得する
@@ -30,7 +35,6 @@ export class UserResolver {
   async findUserByEmail(
     @Args('email', { type: () => String }) email: string,
   ): Promise<User> {
-    console.log('Email', email);
-    return await this.userService.findUserByEmail(email);
+    return await this.findUserByEmailUseCase.execute(email);
   }
 }
